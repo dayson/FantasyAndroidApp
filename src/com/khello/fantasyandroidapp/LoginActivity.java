@@ -8,14 +8,14 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -33,102 +33,6 @@ import android.widget.TextView;
  * well.
  */
 public class LoginActivity extends Activity {
-	public class LoginToServer extends AsyncTask<String, Void, Boolean> {
-		// Required initialization
-		private final HttpClient Client = new DefaultHttpClient();
-		private String Content;
-		private String Error = null;
-		String data =""; 
-		TextView uiUpdate = (TextView) findViewById(R.id.output);
-		TextView jsonParsed = (TextView) findViewById(R.id.jsonParsed);
-		int sizeData = 0;
-		// Values for email and password at the time of the login attempt.
-		private String mEmail;
-		private String mPassword;
-
-		public LoginToServer(String aEmail, String aPassword) {
-			mEmail = aEmail;
-			mPassword = aPassword;
-		}
-
-		protected void onPreExecute() {
-			// NOTE: You can call UI Element here.
-
-			try{
-				// Set Request parameter
-				data += "&"+ URLEncoder.encode("email", "UTF-8") + "="+mEmail+"&"+URLEncoder.encode("password", "UTF-8") + "=" + mPassword;                 
-			} catch (UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-		@Override
-		protected Boolean doInBackground(String... urls) {
-			/************ Make Post Call To Web Server ***********/
-			BufferedReader reader=null; 
-			// SEND DATA TO SERVER
-			try
-			{
-				// Defined URL where to send data
-				URL url = new URL(urls[0]);
-
-				// Send POST data request
-				URLConnection conn = url.openConnection(); 
-				conn.setDoOutput(true); 
-				OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream()); 
-				wr.write( data ); 
-				wr.flush(); 
-
-				// Get the server response 
-				reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-				StringBuilder sb = new StringBuilder();
-				String line = null;
-
-				// Read Server Response
-				while((line = reader.readLine()) != null)
-				{
-					// Append server response in string
-					sb.append(line + " ");
-				}
-
-				// Append Server Response To Content String 
-				Content = sb.toString();
-			}
-			catch(Exception ex)
-			{
-				Error = ex.getMessage();
-			}
-			finally
-			{
-				try
-				{
-					reader.close();
-				}
-				catch(Exception ex) {}
-			}
-			/*****************************************************/
-			return true;
-		}
-
-		@Override
-		protected void onPostExecute(final Boolean success) {
-			// Staring a new Intent
-			Intent nextScreen = new Intent(getApplicationContext(), MainActivity.class);
-			
-			mAuthTask = null;
-			showProgress(false);
-
-			if (success) {
-				//finish();
-				startActivity(nextScreen);
-			} else {
-				mPasswordView
-				.setError(getString(R.string.error_incorrect_password));
-				mPasswordView.requestFocus();
-			}
-		}
-	}
 
 	/**
 	 * A dummy authentication store containing known user names and passwords.
@@ -146,8 +50,7 @@ public class LoginActivity extends Activity {
 	/**
 	 * Keep track of the login task to ensure we can cancel it if requested.
 	 */
-	//private UserLoginTask mAuthTask = null;
-	private LoginToServer mAuthTask = null;
+	private UserLoginTask mAuthTask = null;
 
 	// Values for email and password at the time of the login attempt.
 	private String mEmail;
@@ -177,7 +80,7 @@ public class LoginActivity extends Activity {
 			public boolean onEditorAction(TextView textView, int id,
 					KeyEvent keyEvent) {
 				if (id == R.id.login || id == EditorInfo.IME_NULL) {
-					attemptLogin(serverURL);
+					attemptLogin();
 					return true;
 				}
 				return false;
@@ -192,7 +95,7 @@ public class LoginActivity extends Activity {
 				new View.OnClickListener() {
 					@Override
 					public void onClick(View view) {						
-						attemptLogin(serverURL);
+						attemptLogin();
 						//new LoginToServer(mEmail, mPassword).execute(serverURL);
 					}
 				});
@@ -210,7 +113,7 @@ public class LoginActivity extends Activity {
 	 * If there are form errors (invalid email, missing fields, etc.), the
 	 * errors are presented and no actual login attempt is made.
 	 */
-	public void attemptLogin(String url) {
+	public void attemptLogin() {
 		if (mAuthTask != null) {
 			return;
 		}
@@ -257,8 +160,8 @@ public class LoginActivity extends Activity {
 			// perform the user login attempt.
 			mLoginStatusMessageView.setText(R.string.login_progress_signing_in);
 			showProgress(true);
-			mAuthTask = (LoginToServer) new LoginToServer(mEmail, mPassword).execute(serverURL);
-			//mAuthTask.execute((Void) null);
+			mAuthTask = new UserLoginTask();
+			mAuthTask.execute(serverURL);
 		}
 	}
 
@@ -307,37 +210,108 @@ public class LoginActivity extends Activity {
 	 * Represents an asynchronous login/registration task used to authenticate
 	 * the user.
 	 */
-	public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-		@Override
-		protected Boolean doInBackground(Void... params) {
-			// TODO: attempt authentication against a network service.
+	public class UserLoginTask extends AsyncTask<String, Void, Boolean> {
+		private String data = "";
+		private String ServerResponse = "";
+		private String Error = null;
 
-			try {
-				// Simulate network access.
-				Thread.sleep(2000);
-			} catch (InterruptedException e) {
+		@Override
+		protected Boolean doInBackground(String... urls) {
+			// TODO: attempt authentication against a network service.			
+			try{
+				// Set Request parameter
+				//data=&email=<eEmail>&password=<ePassword>
+				data += "&"+ URLEncoder.encode("email", "UTF-8") + "="+mEmail+"&"+URLEncoder.encode("password", "UTF-8") + "=" + mPassword;                 
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 				return false;
 			}
 
-			for (String credential : DUMMY_CREDENTIALS) {
-				String[] pieces = credential.split(":");
-				if (pieces[0].equals(mEmail)) {
-					// Account exists, return true if the password matches.
-					return pieces[1].equals(mPassword);
-				}
-			}
+			/************ Make Post Call To Web Server ***********/
+			BufferedReader reader=null; 
+			// SEND DATA TO SERVER
+			try
+			{
+				// Defined URL where to send data
+				URL url = new URL(urls[0]);
 
-			// TODO: register the new account here.
-			return true;
+				// Send POST data request
+				URLConnection conn = url.openConnection(); 
+				conn.setDoOutput(true); 
+				OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream()); 
+				wr.write( data ); 
+				wr.flush(); 
+
+				// Get the server response 
+				reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+				StringBuilder sb = new StringBuilder();
+				String line = null;
+
+				// Read Server Response
+				while((line = reader.readLine()) != null)
+				{
+					// Append server response in string
+					sb.append(line + " ");
+				}
+
+				// Append Server Response
+				// {"authenticated":true,"user":1234567}
+				ServerResponse = sb.toString();
+				
+				// Parse Server Response
+				return parseServerResponse(ServerResponse);
+			}
+			catch(Exception ex)
+			{
+				Error = ex.getMessage();
+				return false;
+			}
+			finally
+			{
+				try
+				{
+					reader.close();
+				}
+				catch(Exception ex) {}
+			}
+			/*****************************************************/
+		}
+		
+		public boolean parseServerResponse(String serverResponse) {
+			/****************** Start Parse Response JSON Data *************/
+			String OutputData = "";
+			JSONObject jsonResponse;
+			try {
+				/****** Creates a new JSONObject with name/value mappings from the JSON string. ********/
+				jsonResponse = new JSONObject(serverResponse);
+
+				// TODO: This is where you left off
+				System.out.println(jsonResponse);
+				/****************** End Parse Response JSON Data *************/    
+
+				//Show Parsed Output on screen (activity)
+				//jsonParsed.setText( OutputData );
+			} catch (JSONException e) {           
+				e.printStackTrace();
+			}
+			
+			return false;
+			
 		}
 
 		@Override
 		protected void onPostExecute(final Boolean success) {
+			// Create a new Intent
+			Intent nextScreen = new Intent(getApplicationContext(), MainActivity.class);
+			
 			mAuthTask = null;
 			showProgress(false);
 
 			if (success) {
-				finish();
+				//finish();
+				// Start next activity
+				startActivity(nextScreen);
 			} else {
 				mPasswordView
 				.setError(getString(R.string.error_incorrect_password));

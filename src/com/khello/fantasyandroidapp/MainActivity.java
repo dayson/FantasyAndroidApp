@@ -151,6 +151,8 @@ public class MainActivity extends Activity {
 		}
 	}
 
+	public static final String serverURL = "http://192.168.1.105:3000";
+	
 	// Called when the activity is first created
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -162,9 +164,6 @@ public class MainActivity extends Activity {
 		GetServerData.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				// WebServer Request URL
-				//String serverURL = "http://androidexample.com/media/webservice/JsonReturn.php";
-				String serverURL = "http://192.168.1.50:3000";
 				// Use AsynTask execute Method to Prevent ANR Problem
 				new LongOperation().execute(serverURL);
 			}
