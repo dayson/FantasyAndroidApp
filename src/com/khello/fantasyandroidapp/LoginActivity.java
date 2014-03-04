@@ -16,6 +16,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -32,7 +33,7 @@ import android.widget.TextView;
  * well.
  */
 public class LoginActivity extends Activity {
-	private class LoginToServer extends AsyncTask<String, Void, Void> {
+	public class LoginToServer extends AsyncTask<String, Void, Boolean> {
 		// Required initialization
 		private final HttpClient Client = new DefaultHttpClient();
 		private String Content;
@@ -63,9 +64,9 @@ public class LoginActivity extends Activity {
 		}
 
 		@Override
-		protected Void doInBackground(String... urls) {
+		protected Boolean doInBackground(String... urls) {
 			/************ Make Post Call To Web Server ***********/
-			BufferedReader reader=null;    
+			BufferedReader reader=null; 
 			// SEND DATA TO SERVER
 			try
 			{
@@ -107,54 +108,25 @@ public class LoginActivity extends Activity {
 				catch(Exception ex) {}
 			}
 			/*****************************************************/
-			return null;
+			return true;
 		}
 
-		protected void onPostExecute(Void unused) {
-			// NOTE: You can call UI Element here.
+		@Override
+		protected void onPostExecute(final Boolean success) {
+			// Staring a new Intent
+			Intent nextScreen = new Intent(getApplicationContext(), MainActivity.class);
+			
+			mAuthTask = null;
+			showProgress(false);
 
-			/*if (Error != null) {                  
-				uiUpdate.setText("Output : "+Error);                  
+			if (success) {
+				//finish();
+				startActivity(nextScreen);
 			} else {
-				// Show Response Json On Screen (activity)
-				uiUpdate.setText( Content );
-
-				*//****************** Start Parse Response JSON Data *************//*
-				String OutputData = "";
-				JSONObject jsonResponse;
-				try {
-					*//****** Creates a new JSONObject with name/value mappings from the JSON string. ********//*
-					jsonResponse = new JSONObject(Content);
-
-					*//***** Returns the value mapped by name if it exists and is a JSONArray. ***//*
-					*//*******  Returns null otherwise.  *******//*
-					JSONArray jsonMainNode = jsonResponse.optJSONArray("Android");
-
-					*//*********** Process each JSON Node ************//*
-					int lengthJsonArr = jsonMainNode.length();  
-					for(int i=0; i < lengthJsonArr; i++) 
-					{
-						*//****** Get Object for each JSON node.***********//*
-						JSONObject jsonChildNode = jsonMainNode.getJSONObject(i);
-
-						*//******* Fetch node values **********//*
-						String name       = jsonChildNode.optString("name").toString();
-						String number     = jsonChildNode.optString("number").toString();
-						String date_added = jsonChildNode.optString("date_added").toString();
-
-						OutputData += "Name          : "+ name +"\n"
-								+ "Number      : "+ number +"\n"
-								+ "Time            : "+ date_added +"\n" 
-								+"--------------------------------------------------\n";
-					}
-					*//****************** End Parse Response JSON Data *************//*    
-
-					//Show Parsed Output on screen (activity)
-					jsonParsed.setText( OutputData );
-				} catch (JSONException e) {           
-					e.printStackTrace();
-				}
-			}*/
+				mPasswordView
+				.setError(getString(R.string.error_incorrect_password));
+				mPasswordView.requestFocus();
+			}
 		}
 	}
 
@@ -169,11 +141,13 @@ public class LoginActivity extends Activity {
 	 * The default email to populate the email field with.
 	 */
 	public static final String EXTRA_EMAIL = "com.example.android.authenticatordemo.extra.EMAIL";
+	public static final String serverURL = "http://192.168.1.105:3000/login";
 
 	/**
 	 * Keep track of the login task to ensure we can cancel it if requested.
 	 */
-	private UserLoginTask mAuthTask = null;
+	//private UserLoginTask mAuthTask = null;
+	private LoginToServer mAuthTask = null;
 
 	// Values for email and password at the time of the login attempt.
 	private String mEmail;
@@ -203,7 +177,7 @@ public class LoginActivity extends Activity {
 			public boolean onEditorAction(TextView textView, int id,
 					KeyEvent keyEvent) {
 				if (id == R.id.login || id == EditorInfo.IME_NULL) {
-					attemptLogin();
+					attemptLogin(serverURL);
 					return true;
 				}
 				return false;
@@ -217,17 +191,9 @@ public class LoginActivity extends Activity {
 		findViewById(R.id.sign_in_button).setOnClickListener(
 				new View.OnClickListener() {
 					@Override
-					public void onClick(View view) {
-						//attemptLogin();
-						String serverURL = "http://192.168.1.105:3000/login";
-						// Reset errors.
-						mEmailView.setError(null);
-						mPasswordView.setError(null);
-
-						// Store values at the time of the login attempt.
-						mEmail = mEmailView.getText().toString();
-						mPassword = mPasswordView.getText().toString();
-						new LoginToServer(mEmail, mPassword).execute(serverURL);
+					public void onClick(View view) {						
+						attemptLogin(serverURL);
+						//new LoginToServer(mEmail, mPassword).execute(serverURL);
 					}
 				});
 	}
@@ -244,7 +210,7 @@ public class LoginActivity extends Activity {
 	 * If there are form errors (invalid email, missing fields, etc.), the
 	 * errors are presented and no actual login attempt is made.
 	 */
-	public void attemptLogin() {
+	public void attemptLogin(String url) {
 		if (mAuthTask != null) {
 			return;
 		}
@@ -291,8 +257,8 @@ public class LoginActivity extends Activity {
 			// perform the user login attempt.
 			mLoginStatusMessageView.setText(R.string.login_progress_signing_in);
 			showProgress(true);
-			mAuthTask = new UserLoginTask();
-			mAuthTask.execute((Void) null);
+			mAuthTask = (LoginToServer) new LoginToServer(mEmail, mPassword).execute(serverURL);
+			//mAuthTask.execute((Void) null);
 		}
 	}
 
