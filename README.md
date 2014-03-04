@@ -1,4 +1,4 @@
 FantasyAndroidApp
 =============
 
-Khello Hockey Pool Android App
+Khello Fantasy Android App
