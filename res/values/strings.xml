@@ -3,9 +3,8 @@
 
     <string name="app_name">Fantasy Android App</string>
     <string name="action_settings">Settings</string>
-    
     <string name="get_rest_button">GET</string>
-    
-    <string name="hello_world">Hello world!</string>
+    <string name="select_pool_label">Select a pool:</string>
+    <string name="title_activity_pools_page">PoolsPageActivity</string>
 
 </resources>

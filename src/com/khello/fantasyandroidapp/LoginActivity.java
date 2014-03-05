@@ -303,7 +303,7 @@ public class LoginActivity extends Activity {
 		@Override
 		protected void onPostExecute(final Boolean success) {
 			// Create a new Intent
-			Intent nextScreen = new Intent(getApplicationContext(), MainActivity.class);
+			Intent nextScreen = new Intent(getApplicationContext(), PoolsPageActivity.class);
 			
 			mAuthTask = null;
 			showProgress(false);

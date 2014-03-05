@@ -25,10 +25,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.khello.fantasyandroidapp.PoolsPageActivity" android:label="@string/title_activity_pools_page">
+        </activity>
         <activity
             android:name="com.khello.fantasyandroidapp.MainActivity"
             android:label="@string/app_name" >
         </activity>
+        
     </application>
 
 </manifest>
