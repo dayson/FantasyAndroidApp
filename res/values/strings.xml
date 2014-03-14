@@ -6,5 +6,13 @@
     <string name="get_rest_button">GET</string>
     <string name="select_pool_label">Select a pool:</string>
     <string name="title_activity_pools_page">PoolsPageActivity</string>
+    <string name="title_activity_matchup_page">MatchupPageActivity</string>
+    <string name="title_section1">Section 1</string>
+    <string name="title_section2">Section 2</string>
+    <string name="title_section3">Section 3</string>
+    <string name="title_activity_matchup_tabs">MatchupTabsActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_picks_tab">PicksTabActivity</string>
+    <string name="title_activity_results_tab">ResultsTabActivity</string>
 
 </resources>

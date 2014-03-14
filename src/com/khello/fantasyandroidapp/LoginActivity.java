@@ -95,8 +95,13 @@ public class LoginActivity extends Activity {
 				new View.OnClickListener() {
 					@Override
 					public void onClick(View view) {						
-						attemptLogin();
+						//attemptLogin();
 						//new LoginToServer(mEmail, mPassword).execute(serverURL);
+						
+						// Create a new Intent
+						Intent nextScreen = new Intent(getApplicationContext(), MatchupTabsActivity.class);
+						// Start next activity
+						startActivity(nextScreen);
 					}
 				});
 	}
