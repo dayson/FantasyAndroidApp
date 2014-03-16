@@ -51,8 +51,7 @@ public class PlayerMainActivity extends Activity {
 		navMenuTitles = getResources().getStringArray(R.array.nav_drawer_items);
 		
 		// nav drawer icons from resource
-		navMenuIcons = getResources()
-				.obtainTypedArray(R.array.nav_drawer_items);
+		navMenuIcons = getResources().obtainTypedArray(R.array.nav_drawer_items);
 		
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerList = (ListView) findViewById(R.id.list_slidermenu);
