@@ -1,4 +1,7 @@
-package com.khello.fantasyandroidapp;
+package com.khello.fantasyandroidapp.fragments;
+
+import com.khello.fantasyandroidapp.R;
+import com.khello.fantasyandroidapp.R.layout;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

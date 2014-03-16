@@ -49,6 +49,10 @@
             android:name="com.khello.fantasyandroidapp.ResultsTabActivity"
             android:label="@string/title_activity_results_tab" >
         </activity>
+        <activity
+            android:name="com.khello.fantasyandroidapp.PlayerMainActivity"
+            android:label="@string/title_activity_player_main" >
+        </activity>
     </application>
 
 </manifest>

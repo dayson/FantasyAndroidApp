@@ -99,7 +99,7 @@ public class LoginActivity extends Activity {
 						//new LoginToServer(mEmail, mPassword).execute(serverURL);
 						
 						// Create a new Intent
-						Intent nextScreen = new Intent(getApplicationContext(), MatchupTabsActivity.class);
+						Intent nextScreen = new Intent(getApplicationContext(), PlayerMainActivity.class);
 						// Start next activity
 						startActivity(nextScreen);
 					}
